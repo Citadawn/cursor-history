@@ -212,9 +212,12 @@ function formatThinkingDisplay(content: string, fullThinking: boolean): string {
 /**
  * Format tool call content with nice styling
  */
-function formatToolCallDisplay(content: string, fullRead: boolean): string {
+function formatToolCallDisplay(content: string, fullTool: boolean): string {
   const lines = content.split('\n');
   const result: string[] = [];
+  let inDiffBlock = false;
+  let diffLineCount = 0;
+  const MAX_DIFF_LINES = 20; // Show first 20 lines of diff by default
 
   for (const line of lines) {
     if (line.startsWith('[Tool:')) {
@@ -222,18 +225,64 @@ function formatToolCallDisplay(content: string, fullRead: boolean): string {
       const toolName = line.replace('[Tool:', '').replace(']', '').trim();
       result.push(pc.magenta(pc.bold(`🔧 ${toolName}`)));
     } else if (line.startsWith('File:') || line.startsWith('Directory:') || line.startsWith('Command:') || line.startsWith('Target:')) {
-      // Target line
-      result.push(pc.cyan('   ' + line));
+      // Target line - truncate command if not fullTool
+      if (line.startsWith('Command:') && !fullTool) {
+        const cmd = line.replace('Command:', '').trim();
+        const truncated = cmd.slice(0, 100) + (cmd.length > 100 ? '...' : '');
+        result.push(pc.cyan('   Command: ' + truncated));
+      } else {
+        result.push(pc.cyan('   ' + line));
+      }
+    } else if (line === '```diff') {
+      // Start of diff block
+      inDiffBlock = true;
+      diffLineCount = 0;
+      result.push('   ' + line);
+    } else if (line === '```' && inDiffBlock) {
+      // End of diff block
+      inDiffBlock = false;
+      result.push('   ' + line);
+    } else if (inDiffBlock) {
+      // Inside diff block
+      if (!fullTool && diffLineCount >= MAX_DIFF_LINES) {
+        // Skip additional lines and add truncation marker once
+        if (diffLineCount === MAX_DIFF_LINES) {
+          result.push(pc.dim('   ... (use --tool to see full diff)'));
+          diffLineCount++;
+        }
+      } else {
+        // Color diff lines: red for removals, green for additions
+        if (line.startsWith('-')) {
+          result.push('   ' + pc.red(line));
+        } else if (line.startsWith('+')) {
+          result.push('   ' + pc.green(line));
+        } else {
+          result.push('   ' + pc.dim(line));
+        }
+        diffLineCount++;
+      }
     } else if (line.startsWith('Content:')) {
       // Content preview
       const preview = line.replace('Content:', '').trim();
 
-      if (fullRead) {
-        // Show full content for file reads
+      if (fullTool) {
+        // Show full content
         result.push(pc.dim('   Content: ') + pc.gray(preview));
       } else {
-        // Show truncated content (default)
+        // Show truncated content (default: 100 chars)
         result.push(pc.dim('   Content: ') + pc.gray(preview.slice(0, 100) + (preview.length > 100 ? '...' : '')));
+      }
+    } else if (line.startsWith('Result:') || line.startsWith('Output:')) {
+      // Tool result/output preview
+      const prefix = line.startsWith('Result:') ? 'Result:' : 'Output:';
+      const preview = line.replace(prefix, '').trim();
+
+      if (fullTool) {
+        // Show full result
+        result.push(pc.dim('   ' + prefix + ' ') + pc.gray(preview));
+      } else {
+        // Show truncated result (default: 300 chars)
+        result.push(pc.dim('   ' + prefix + ' ') + pc.gray(preview.slice(0, 300) + (preview.length > 300 ? '...' : '')));
       }
     } else {
       result.push('   ' + line);
@@ -249,10 +298,10 @@ function formatToolCallDisplay(content: string, fullRead: boolean): string {
 export function formatSessionDetail(
   session: ChatSession,
   workspacePath?: string,
-  options?: { short?: boolean; fullThinking?: boolean; fullRead?: boolean; fullError?: boolean }
+  options?: { short?: boolean; fullThinking?: boolean; fullTool?: boolean; fullError?: boolean }
 ): string {
   const lines: string[] = [];
-  const { short = false, fullThinking = false, fullRead = false, fullError = false } = options ?? {};
+  const { short = false, fullThinking = false, fullTool = false, fullError = false } = options ?? {};
 
   // Header
   lines.push(pc.bold(`Chat Session #${session.index}`));
@@ -298,7 +347,7 @@ export function formatSessionDetail(
     // Check if this is a tool call
     if (isToolCall(message.content)) {
       lines.push(`${pc.cyan(pc.bold('Tool:'))} ${timestampDisplay}`);
-      lines.push(formatToolCallDisplay(message.content, fullRead));
+      lines.push(formatToolCallDisplay(message.content, fullTool));
       lines.push('');
       lines.push(pc.dim('─'.repeat(40)));
       lines.push('');

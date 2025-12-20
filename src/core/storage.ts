@@ -737,18 +737,18 @@ function formatDiffBlock(diffData: {
     return null;
   }
 
-  const lines: string[] = ['[File Edit - AI Generated]'];
+  const lines: string[] = [];
 
   for (const chunk of diffData.chunks) {
     if (chunk.diffString && typeof chunk.diffString === 'string') {
-      // Show the full diff
-      lines.push('\n```diff');
+      // Show the full diff with fences
+      lines.push('```diff');
       lines.push(chunk.diffString);
       lines.push('```');
     }
   }
 
-  return lines.length > 1 ? lines.join('\n') : null;
+  return lines.length > 0 ? lines.join('\n') : null;
 }
 
 /**
@@ -759,8 +759,21 @@ function formatToolCallWithResult(toolData: {
   params?: string;
   result?: string;
   rawArgs?: string;
+  status?: string;
+  additionalData?: { status?: string; userDecision?: string };
 }): string | null {
   const lines: string[] = [];
+
+  // Parse params to get file path first
+  let filePath = '';
+  if (toolData.params || toolData.rawArgs) {
+    try {
+      const params = JSON.parse(toolData.params ?? toolData.rawArgs ?? '{}');
+      filePath = params.relativeWorkspacePath ?? params.file_path ?? '';
+    } catch {
+      // Ignore parse errors
+    }
+  }
 
   // Parse the result for diff information
   try {
@@ -768,33 +781,44 @@ function formatToolCallWithResult(toolData: {
 
     // Check if result has diff
     if (result.diff && typeof result.diff === 'object') {
+      // Format as tool call header
+      const toolName = toolData.name ?? 'write';
+      lines.push(`[Tool: ${toolName === 'write' || toolName === 'write_file' ? 'Write File' : 'Edit File'}]`);
+
+      if (filePath) {
+        lines.push(`File: ${filePath}`);
+      }
+
+      // Add the diff blocks
       const diffText = formatDiffBlock(result.diff);
       if (diffText) {
+        lines.push('');
         lines.push(diffText);
       }
 
       // Add result summary if available
       if (result.resultForModel && typeof result.resultForModel === 'string') {
-        lines.push(`\nResult: ${result.resultForModel}`);
+        lines.push('');
+        lines.push(`Result: ${result.resultForModel}`);
       }
     }
   } catch {
     // Not JSON or no diff
+    return null;
   }
 
-  // Also parse params to show what was requested
-  if (toolData.params || toolData.rawArgs) {
-    try {
-      const params = JSON.parse(toolData.params ?? toolData.rawArgs ?? '{}');
+  // Add status indicator
+  if (toolData.status) {
+    const statusEmoji = toolData.status === 'completed' ? '✓' : '❌';
+    lines.push('');
+    lines.push(`Status: ${statusEmoji} ${toolData.status}`);
+  }
 
-      // For write tool, show file path
-      if (params.relativeWorkspacePath || params.file_path) {
-        const filePath = params.relativeWorkspacePath ?? params.file_path;
-        lines.unshift(`File: ${filePath}`);
-      }
-    } catch {
-      // Ignore parse errors
-    }
+  // Add user decision if present
+  const userDecision = (toolData.additionalData as any)?.userDecision;
+  if (userDecision && typeof userDecision === 'string') {
+    const decisionEmoji = userDecision === 'accepted' ? '✓' : userDecision === 'rejected' ? '✗' : '⏳';
+    lines.push(`User Decision: ${decisionEmoji} ${userDecision}`);
   }
 
   return lines.length > 0 ? lines.join('\n') : null;

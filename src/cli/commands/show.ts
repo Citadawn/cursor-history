@@ -13,7 +13,7 @@ interface ShowCommandOptions {
   dataPath?: string;
   short?: boolean;
   think?: boolean;
-  fullread?: boolean;
+  tool?: boolean;
   error?: boolean;
 }
 
@@ -26,7 +26,7 @@ export function registerShowCommand(program: Command): void {
     .description('Show a chat session by index')
     .option('-s, --short', 'Truncate user and assistant messages')
     .option('-t, --think', 'Show full thinking/reasoning text')
-    .option('-f, --fullread', 'Show full file read content')
+    .option('--tool', 'Show full tool call details (commands, content, results)')
     .option('-e, --error', 'Show full error messages (default: truncated)')
     .action(async (indexArg: string, options: ShowCommandOptions, command: Command) => {
       const globalOptions = command.parent?.opts() as { json?: boolean; dataPath?: string };
@@ -58,7 +58,7 @@ export function registerShowCommand(program: Command): void {
             formatSessionDetail(session, session.workspacePath, {
               short: options.short ?? false,
               fullThinking: options.think ?? false,
-              fullRead: options.fullread ?? false,
+              fullTool: options.tool ?? false,
               fullError: options.error ?? false,
             })
           );
