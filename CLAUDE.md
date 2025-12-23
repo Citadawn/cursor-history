@@ -189,3 +189,10 @@ Edit `extractBubbleText()` in `src/core/storage.ts`. Priority matters:
 1. Add formatter in `src/cli/formatters/`
 2. Export from `src/cli/formatters/index.ts`
 3. Use in command with `--format` option
+
+## Active Technologies
+- TypeScript 5.9+ (strict mode enabled) + better-sqlite3 (existing), no CLI dependencies (commander/picocolors removed from library) (002-library-api)
+- SQLite databases (state.vscdb) - read-only access via better-sqlite3 (002-library-api)
+
+## Recent Changes
+- 002-library-api: Added TypeScript 5.9+ (strict mode enabled) + better-sqlite3 (existing), no CLI dependencies (commander/picocolors removed from library)
