@@ -70,7 +70,31 @@
 
 ---
 
-## Phase 4: User Story 4 - Custom Data Path Configuration (Priority: P2)
+## Phase 4: Enhanced Message Data - Tool Calls, Thinking, Metadata (Priority: P2)
+
+**Goal**: Enrich library Message objects with tool calls, thinking text, and metadata that are already extracted by the core storage layer but not currently exposed in the library API
+
+**Independent Test**: Call `getSession(0)` and verify messages contain `toolCalls`, `thinking`, and `metadata` fields when available
+
+**Note**: This phase enhances the existing core types to preserve data that's already being extracted for CLI display. No changes to CLI behavior.
+
+### Implementation for Enhanced Message Data
+
+- [ ] T024A [P] Add optional fields to `src/core/types.ts` Message interface (toolCalls?: ToolCall[], thinking?: string, metadata?: object)
+- [ ] T024B [P] Add ToolCall interface to `src/core/types.ts` (name, status, params, result, error, files)
+- [ ] T024C Update `src/core/parser.ts` parseChatData() to populate toolCalls array from bubble data
+- [ ] T024D Update `src/core/parser.ts` parseChatData() to populate thinking field from extractThinkingText()
+- [ ] T024E Update `src/core/parser.ts` parseChatData() to populate metadata field (corrupted flag, bubbleType)
+- [ ] T024F Update `src/core/storage.ts` extractBubbleText() to return structured data instead of just text
+- [ ] T024G Update `src/lib/index.ts` convertToLibrarySession() to map toolCalls/thinking/metadata from core Message
+- [ ] T024H Remove comment about fields not being captured (they now are)
+- [ ] T024I Verify CLI formatters still work with enhanced Message type (backward compatible)
+
+**Checkpoint**: Library messages now include rich metadata - tool calls, thinking text, and corruption flags
+
+---
+
+## Phase 5: User Story 4 - Custom Data Path Configuration (Priority: P2)
 
 **Goal**: Support custom Cursor data paths for non-standard installations and testing
 
@@ -92,7 +116,7 @@
 
 ---
 
-## Phase 5: User Story 2 - Search Functionality (Priority: P2)
+## Phase 6: User Story 2 - Search Functionality (Priority: P2)
 
 **Goal**: Enable programmatic search across chat history with context snippets
 
@@ -113,7 +137,7 @@
 
 ---
 
-## Phase 6: User Story 3 - Export and Format Conversion (Priority: P3)
+## Phase 7: User Story 3 - Export and Format Conversion (Priority: P3)
 
 **Goal**: Enable exporting chat sessions to JSON and Markdown formats
 
@@ -135,7 +159,7 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Documentation, validation, and final integration
 
@@ -164,19 +188,21 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3-6)**: All depend on Foundational phase completion
+- **User Stories (Phase 3-7)**: All depend on Foundational phase completion
   - US1 (Phase 3): Must complete first (MVP)
-  - US4 (Phase 4): Can start after US1, enhances configuration
-  - US2 (Phase 5): Can start after US1, independent of US4
-  - US3 (Phase 6): Can start after US1, independent of US2/US4
-- **Polish (Phase 7)**: Depends on all desired user stories being complete
+  - Enhanced Message Data (Phase 4): Can start after US1, enhances core types
+  - US4 (Phase 5): Can start after US1, enhances configuration
+  - US2 (Phase 6): Can start after US1, independent of US4/Phase 4
+  - US3 (Phase 7): Can start after US1, independent of US2/US4/Phase 4
+- **Polish (Phase 8)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories ✅ MVP
+- **Enhanced Message Data (P2)**: Can start after US1 - Enhances core types, independent of user stories
 - **User Story 4 (P2)**: Can start after US1 - Enhances configuration but doesn't block other stories
-- **User Story 2 (P2)**: Can start after US1 - Independent of US4
-- **User Story 3 (P3)**: Can start after US1 - Reuses list/get functionality, independent of US2/US4
+- **User Story 2 (P2)**: Can start after US1 - Independent of US4 and Enhanced Message Data
+- **User Story 3 (P3)**: Can start after US1 - Reuses list/get functionality, independent of US2/US4/Enhanced Message Data
 
 ### Within Each User Story
 
@@ -196,16 +222,19 @@
 - T021, T022 can run in parallel (different exports)
 - T023, T024 can run in parallel (different CLI command files)
 
-**Phase 4 (US4)**:
+**Phase 4 (Enhanced Message Data)**:
+- T024A, T024B can run in parallel (different interface additions)
+
+**Phase 5 (US4)**:
 - T025 can run before other US4 tasks
 
-**Phase 5 (US2)**:
+**Phase 6 (US2)**:
 - T032-T037 are closely related, should be done sequentially
 
-**Phase 6 (US3)**:
+**Phase 7 (US3)**:
 - T040, T041, T042, T043 can run in parallel (4 different export functions)
 
-**Phase 7 (Polish)**:
+**Phase 8 (Polish)**:
 - T049-T058 can all run in parallel (different files/independent tasks)
 
 ---
@@ -269,18 +298,20 @@ With multiple developers:
 
 ## Task Counts
 
-- **Total Tasks**: 64
+- **Total Tasks**: 73 (64 original + 9 new for Enhanced Message Data)
 - **Phase 1 (Setup)**: 5 tasks
 - **Phase 2 (Foundational)**: 7 tasks (CRITICAL PATH)
 - **Phase 3 (US1 - MVP)**: 12 tasks
-- **Phase 4 (US4)**: 7 tasks
-- **Phase 5 (US2)**: 8 tasks
-- **Phase 6 (US3)**: 9 tasks
-- **Phase 7 (Polish)**: 16 tasks
+- **Phase 4 (Enhanced Message Data)**: 9 tasks (NEW)
+- **Phase 5 (US4)**: 7 tasks
+- **Phase 6 (US2)**: 8 tasks
+- **Phase 7 (US3)**: 9 tasks
+- **Phase 8 (Polish)**: 16 tasks
 
-**Parallel Tasks**: 25 tasks marked [P] (39% can run in parallel with proper coordination)
+**Parallel Tasks**: 27 tasks marked [P] (37% can run in parallel with proper coordination)
 
 **MVP Scope**: Phases 1-3 (24 tasks) delivers core programmatic access via simple imports
+**Enhanced MVP**: Phases 1-4 (33 tasks) adds rich message metadata (tool calls, thinking, flags)
 
 ---
 

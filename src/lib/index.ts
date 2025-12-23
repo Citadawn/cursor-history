@@ -48,8 +48,9 @@ function convertToLibrarySession(coreSession: CoreSession): Session {
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content,
       timestamp: msg.timestamp.toISOString(),
-      // Note: Tool calls, thinking, and metadata are not currently captured
-      // in the core storage layer. These fields will be added in future enhancements.
+      toolCalls: msg.toolCalls,
+      thinking: msg.thinking,
+      metadata: msg.metadata,
     })),
     messageCount: coreSession.messageCount,
     metadata: {
