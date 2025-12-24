@@ -14,6 +14,7 @@ CLI tool and library to browse, search, and export your Cursor AI chat history.
   - Message timestamps
 - **Search** - Find conversations by keyword with highlighted matches
 - **Export** - Save sessions as Markdown or JSON files
+- **Migrate** - Move or copy sessions between workspaces (e.g., when renaming projects)
 - **Cross-platform** - Works on macOS, Windows, and Linux
 
 ## Installation
@@ -128,6 +129,31 @@ cursor-history export --all -o ./exports/
 cursor-history export 1 --force
 ```
 
+### Migrate Sessions
+
+```bash
+# Move a single session to another workspace
+cursor-history migrate-session 1 /path/to/new/project
+
+# Move multiple sessions (comma-separated indices or IDs)
+cursor-history migrate-session 1,3,5 /path/to/project
+
+# Copy instead of move (keeps original)
+cursor-history migrate-session --copy 1 /path/to/project
+
+# Preview what would happen without making changes
+cursor-history migrate-session --dry-run 1 /path/to/project
+
+# Move all sessions from one workspace to another
+cursor-history migrate /old/project /new/project
+
+# Copy all sessions (backup)
+cursor-history migrate --copy /project /backup/project
+
+# Force merge with existing sessions at destination
+cursor-history migrate --force /old/project /existing/project
+```
+
 ### Global Options
 
 ```bash
@@ -213,6 +239,32 @@ for (const match of results) {
 const markdown = exportSessionToMarkdown(0);
 ```
 
+### Migration API
+
+```typescript
+import { migrateSession, migrateWorkspace } from 'cursor-history';
+
+// Move a session to another workspace
+const results = migrateSession({
+  sessions: 3,  // index or ID
+  destination: '/path/to/new/project'
+});
+
+// Copy multiple sessions (keeps originals)
+const results = migrateSession({
+  sessions: [1, 3, 5],
+  destination: '/path/to/project',
+  mode: 'copy'
+});
+
+// Migrate all sessions between workspaces
+const result = migrateWorkspace({
+  source: '/old/project',
+  destination: '/new/project'
+});
+console.log(`Migrated ${result.successCount} sessions`);
+```
+
 ### Available Functions
 
 | Function | Description |
@@ -224,6 +276,8 @@ const markdown = exportSessionToMarkdown(0);
 | `exportSessionToMarkdown(index, config?)` | Export session to Markdown |
 | `exportAllSessionsToJson(config?)` | Export all sessions to JSON |
 | `exportAllSessionsToMarkdown(config?)` | Export all sessions to Markdown |
+| `migrateSession(config)` | Move/copy sessions to another workspace |
+| `migrateWorkspace(config)` | Move/copy all sessions between workspaces |
 | `getDefaultDataPath()` | Get platform-specific Cursor data path |
 
 ### Configuration Options
@@ -244,7 +298,9 @@ interface LibraryConfig {
 import {
   listSessions,
   isDatabaseLockedError,
-  isDatabaseNotFoundError
+  isDatabaseNotFoundError,
+  isSessionNotFoundError,
+  isWorkspaceNotFoundError
 } from 'cursor-history';
 
 try {
@@ -254,6 +310,10 @@ try {
     console.error('Database locked - close Cursor and retry');
   } else if (isDatabaseNotFoundError(err)) {
     console.error('Cursor data not found');
+  } else if (isSessionNotFoundError(err)) {
+    console.error('Session not found');
+  } else if (isWorkspaceNotFoundError(err)) {
+    console.error('Workspace not found - open project in Cursor first');
   }
 }
 ```

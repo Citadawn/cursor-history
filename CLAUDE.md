@@ -49,21 +49,22 @@ npm run typecheck    # Type check
 ```
 src/
 ├── cli/
-│   ├── commands/          # list, show, search, export
+│   ├── commands/          # list, show, search, export, migrate, migrate-session
 │   ├── formatters/        # table.ts (terminal), json.ts
 │   ├── errors.ts          # CLI-specific errors (CliError, SessionNotFoundError)
 │   └── index.ts           # CLI entry, global options
 ├── core/
 │   ├── storage.ts         # findWorkspaces, listSessions, getSession, extractBubbleText
+│   ├── migrate.ts         # migrateSession, migrateWorkspace, copyBubbleDataInGlobalStorage
 │   ├── parser.ts          # parseChatData, exportToMarkdown, exportToJson
-│   └── types.ts           # ChatSession, Message, Workspace, ToolCall, etc.
+│   └── types.ts           # ChatSession, Message, Workspace, ToolCall, MigrationMode, etc.
 └── lib/
-    ├── index.ts           # Library entry point (listSessions, getSession, searchSessions, export*)
-    ├── types.ts           # Public library types (Session, Message, SearchResult, etc.)
+    ├── index.ts           # Library entry point (listSessions, getSession, searchSessions, export*, migrate*)
+    ├── types.ts           # Public library types (Session, Message, SearchResult, MigrateSessionConfig, etc.)
     ├── config.ts          # Configuration validation and merging
-    ├── errors.ts          # Library errors (DatabaseLockedError, DatabaseNotFoundError)
+    ├── errors.ts          # Library errors (DatabaseLockedError, SessionNotFoundError, WorkspaceNotFoundError, etc.)
     ├── utils.ts           # Utility functions (getDefaultDataPath)
-    └── platform.ts        # getCursorDataPath, expandPath, contractPath
+    └── platform.ts        # getCursorDataPath, expandPath, contractPath, normalizePath, pathsEqual
 ```
 
 ### Architecture: Shared Core
@@ -88,7 +89,8 @@ Both CLI and Library share the same core logic:
 ```
 
 **Both share:**
-- `src/core/storage.ts` - `listSessions()`, `getSession()`, `searchSessions()`
+- `src/core/storage.ts` - `listSessions()`, `getSession()`, `searchSessions()`, `findWorkspaceForSession()`, `findWorkspaceByPath()`
+- `src/core/migrate.ts` - `migrateSession()`, `migrateWorkspace()`, `copyBubbleDataInGlobalStorage()`
 - `src/core/parser.ts` - `exportToJson()`, `exportToMarkdown()`
 
 **The library adds:**
@@ -106,12 +108,29 @@ So when someone uses `import { listSessions } from 'cursor-history'`, they're ca
 
 - `listSessions()` - Uses workspace storage for listing (correct paths)
 - `getSession()` - Tries global storage first (full AI responses), falls back to workspace
+- `findWorkspaceForSession(sessionId)` - Finds which workspace contains a session by ID
+- `findWorkspaceByPath(path)` - Finds workspace by its project path
+- `getComposerData(db)` - Reads composer array, handles both `allComposers` and legacy formats
+- `updateComposerData(db, composers)` - Writes composer array, preserves original format
+- `resolveSessionIdentifiers(input)` - Converts index/ID/comma-separated to session ID array
 - `extractBubbleText()` - Extracts text from bubble with priority order (all based on DB fields, not pattern matching)
 - `extractThinkingText()` - Extracts from `data.thinking.text` DB field
 - `formatToolCallWithResult()` - Parses `toolFormerData.result` for diff blocks
 - `formatToolCall()` - Formats tool calls with parameters using `getParam()` helper
 - `formatDiffBlock()` - Formats diff chunks with ```diff markdown fencing
 - `getParam()` - Helper that tries multiple field name variations for tool parameters
+
+### Migration Layer (`src/core/migrate.ts`)
+
+- `migrateSession(sessionId, options)` - Core primitive: move/copy single session between workspaces
+- `migrateSessions(options)` - Batch migration with partial failure handling
+- `migrateWorkspace(options)` - Convenience wrapper: migrate all sessions from source workspace
+- `copyBubbleDataInGlobalStorage(oldId, newId)` - Deep copy bubble data for copy mode (prevents data loss when deleting copies)
+- `generateSessionId()` - Creates new UUID v4 for copied sessions
+
+**Migration modes:**
+- `move` - Removes session from source, adds to destination (like `mv`)
+- `copy` - Duplicates session with new ID, both remain independent (like `cp`)
 
 **All special message detection is DB-field based:**
 - Errors: `toolFormerData.additionalData.status === 'error'`
@@ -289,12 +308,20 @@ Edit `extractBubbleText()` in `src/core/storage.ts`. Priority matters:
 
 ## Active Technologies
 - TypeScript 5.9+ (strict mode enabled)
-- better-sqlite3 for SQLite database access (read-only)
+- better-sqlite3 for SQLite database access (read-only for queries, read-write for migrations)
 - commander + picocolors for CLI (not used in library)
 - Dual ESM/CommonJS module support
-- TypeScript 5.9+ (strict mode enabled) + better-sqlite3, commander, picocolors, node:fs (for workspace.json writes) (003-migrate-workspace)
 
 ## Recent Changes
+- 003-migrate-workspace: Added session migration feature
+  - `src/core/migrate.ts` - Core migration logic (move/copy sessions between workspaces)
+  - `src/cli/commands/migrate-session.ts` - Single/multiple session migration command
+  - `src/cli/commands/migrate.ts` - Workspace-level migration command
+  - Copy mode creates fully independent copies (no shared bubble data)
+  - Handles both `allComposers` format and legacy array format
+  - Library API: `migrateSession()`, `migrateWorkspace()`
+  - New errors: `SessionNotFoundError`, `WorkspaceNotFoundError`, `SameWorkspaceError`, etc.
+
 - 002-library-api: Added library API for programmatic access
   - `src/lib/index.ts` - Main entry point with all public functions
   - `src/lib/types.ts` - Public TypeScript types (Session, Message, etc.)
