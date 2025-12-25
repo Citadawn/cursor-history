@@ -1,80 +1,76 @@
-#!/usr/bin/env node
-/**
- * Debug script to test Cursor data reading
- */
-
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { homedir } from 'node:os';
 import Database from 'better-sqlite3';
 
-const basePath = join(homedir(), 'Library/Application Support/Cursor/User/workspaceStorage');
+const db = new Database('./history.tmp/globalStorage/state.vscdb', { readonly: true });
 
-console.log('Base path:', basePath);
-console.log('Exists:', existsSync(basePath));
+// Look for write operations with diff data
+console.log('=== Looking for write/edit operations with diffs ===\n');
+const writeBubbles = db.prepare("SELECT key, value FROM cursorDiskKV WHERE value LIKE '%\"name\":\"write\"%' OR value LIKE '%edit_file%' OR value LIKE '%search_replace%' OR value LIKE '%diffString%' LIMIT 10").all();
 
-if (!existsSync(basePath)) {
-  console.log('Base path does not exist!');
-  process.exit(1);
-}
-
-const entries = readdirSync(basePath, { withFileTypes: true });
-console.log('\nFound', entries.length, 'entries\n');
-
-for (const entry of entries.slice(0, 3)) {
-  if (!entry.isDirectory()) continue;
-
-  console.log('=== Workspace:', entry.name, '===');
-
-  const workspaceDir = join(basePath, entry.name);
-  const dbPath = join(workspaceDir, 'state.vscdb');
-  const wsJsonPath = join(workspaceDir, 'workspace.json');
-
-  // Check workspace.json
-  if (existsSync(wsJsonPath)) {
-    const content = readFileSync(wsJsonPath, 'utf-8');
-    console.log('workspace.json:', content);
-    try {
-      const data = JSON.parse(content);
-      const folderPath = data.folder?.replace(/^file:\/\//, '').replace(/%20/g, ' ');
-      console.log('Parsed folder path:', folderPath);
-    } catch (e) {
-      console.log('Failed to parse workspace.json:', e.message);
-    }
-  } else {
-    console.log('workspace.json: NOT FOUND');
-  }
-
-  // Check database
-  if (existsSync(dbPath)) {
-    console.log('state.vscdb: EXISTS');
-    try {
-      const db = new Database(dbPath, { readonly: true });
-
-      // Check for composer.composerData
-      const composerRow = db.prepare("SELECT value FROM ItemTable WHERE key = 'composer.composerData'").get();
-      if (composerRow) {
-        console.log('composer.composerData: FOUND');
-        const data = JSON.parse(composerRow.value);
-        console.log('  allComposers count:', data.allComposers?.length ?? 0);
-        if (data.allComposers?.length > 0) {
-          console.log('  First composer:', JSON.stringify(data.allComposers[0], null, 2));
-        }
-      } else {
-        console.log('composer.composerData: NOT FOUND');
+for (const bubble of writeBubbles) {
+  console.log('\n=== Key:', bubble.key, '===');
+  try {
+    const data = JSON.parse(bubble.value);
+    if (data.toolFormerData) {
+      console.log('Tool:', data.toolFormerData.name);
+      if (data.toolFormerData.params) {
+        const params = JSON.parse(data.toolFormerData.params);
+        console.log('Params keys:', Object.keys(params));
+        if (params.targetFile) console.log('  targetFile:', params.targetFile);
+        if (params.relativeWorkspacePath) console.log('  relativeWorkspacePath:', params.relativeWorkspacePath);
+        if (params.filePath) console.log('  filePath:', params.filePath);
       }
-
-      // Check legacy keys
-      const legacyRow = db.prepare("SELECT value FROM ItemTable WHERE key = 'workbench.panel.aichat.view.aichat.chatdata'").get();
-      console.log('legacy chatdata:', legacyRow ? 'FOUND' : 'NOT FOUND');
-
-      db.close();
-    } catch (e) {
-      console.log('Database error:', e.message);
+      if (data.toolFormerData.result) {
+        try {
+          const result = JSON.parse(data.toolFormerData.result);
+          console.log('Result keys:', Object.keys(result));
+          if (result.diff) {
+            console.log('  Has diff:', !!result.diff);
+            if (result.diff.editor) console.log('  diff.editor:', result.diff.editor);
+          }
+        } catch {}
+      }
     }
-  } else {
-    console.log('state.vscdb: NOT FOUND');
+    // Check for codeBlocks with file references
+    if (data.codeBlocks) {
+      for (const cb of data.codeBlocks) {
+        if (cb.uri) console.log('  codeBlock.uri:', cb.uri);
+      }
+    }
+  } catch (e) {
+    console.log('Parse error:', e.message);
+  }
+}
+
+// Now look at workspace storage to see file references there
+console.log('\n\n=== Checking workspace storage ===');
+const fs = await import('node:fs');
+const workspaces = fs.readdirSync('./history.tmp/workspaceStorage');
+for (const wsId of workspaces.slice(0, 2)) {
+  const dbPath = `./history.tmp/workspaceStorage/${wsId}/state.vscdb`;
+  if (!fs.existsSync(dbPath)) continue;
+
+  console.log('\n--- Workspace:', wsId, '---');
+  const wsDb = new Database(dbPath, { readonly: true });
+
+  // Check for file-related entries
+  const fileItems = wsDb.prepare("SELECT key FROM ItemTable WHERE value LIKE '%/Users/%' LIMIT 5").all();
+  console.log('Keys with file paths:', fileItems.map(i => i.key));
+
+  // Check composerData for file references
+  const composerRow = wsDb.prepare("SELECT value FROM ItemTable WHERE key = 'composer.composerData'").get();
+  if (composerRow) {
+    const data = JSON.parse(composerRow.value);
+    if (data.allComposers) {
+      for (const composer of data.allComposers.slice(0, 1)) {
+        console.log('Composer keys:', Object.keys(composer));
+        if (composer.context) console.log('  context:', JSON.stringify(composer.context).slice(0, 200));
+        if (composer.files) console.log('  files:', composer.files);
+        if (composer.fileUris) console.log('  fileUris:', composer.fileUris);
+      }
+    }
   }
 
-  console.log('');
+  wsDb.close();
 }
+
+db.close();
