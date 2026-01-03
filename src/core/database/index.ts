@@ -135,3 +135,17 @@ export function resetRegistry(): void {
 export async function ensureDriver(): Promise<void> {
   await registry.ensureDriver();
 }
+
+/**
+ * Backup a database file to another location
+ *
+ * Uses the native SQLite backup API for consistent snapshots even
+ * while the source database is being written to.
+ *
+ * @param sourcePath - Path to the source database file
+ * @param destPath - Path where backup will be created
+ * @returns Promise that resolves when backup is complete
+ */
+export async function backupDatabase(sourcePath: string, destPath: string): Promise<void> {
+  return registry.backupDatabase(sourcePath, destPath);
+}

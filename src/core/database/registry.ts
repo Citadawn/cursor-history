@@ -171,6 +171,16 @@ class DriverRegistry {
   }
 
   /**
+   * Backup a database file to another location
+   *
+   * Uses the native SQLite backup API for consistent snapshots.
+   */
+  async backupDatabase(sourcePath: string, destPath: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    return driver.backup(sourcePath, destPath);
+  }
+
+  /**
    * Reset the registry (mainly for testing)
    */
   reset(): void {

@@ -86,4 +86,18 @@ export const betterSqlite3Driver: DatabaseDriver = {
     debugLog(`Opened database with better-sqlite3: ${path} (readonly: ${options.readonly})`);
     return new BetterSqlite3Database(db);
   },
+
+  async backup(sourcePath: string, destPath: string): Promise<void> {
+    if (!BetterSqlite3) {
+      throw new Error('better-sqlite3 is not loaded. Call isAvailable() first.');
+    }
+    const sourceDb = new BetterSqlite3(sourcePath, { readonly: true });
+    try {
+      debugLog(`Backing up database with better-sqlite3: ${sourcePath} -> ${destPath}`);
+      await sourceDb.backup(destPath);
+      debugLog(`Backup completed: ${destPath}`);
+    } finally {
+      sourceDb.close();
+    }
+  },
 };

@@ -106,6 +106,19 @@ export interface DatabaseDriver {
    * @throws Error if database cannot be opened
    */
   open(path: string, options: DatabaseOptions): Database;
+
+  /**
+   * Backup a database to another file
+   *
+   * Uses the native SQLite backup API for consistent snapshots even
+   * while the source database is being written to.
+   *
+   * @param sourcePath - Path to the source database file
+   * @param destPath - Path where backup will be created
+   * @returns Promise that resolves when backup is complete
+   * @throws Error if backup fails
+   */
+  backup(sourcePath: string, destPath: string): Promise<void>;
 }
 
 /**

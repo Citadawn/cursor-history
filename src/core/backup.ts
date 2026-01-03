@@ -2,24 +2,20 @@
  * Core backup and restore functionality
  *
  * This module provides low-level backup operations:
- * - SQLite database backup using better-sqlite3 backup API
+ * - SQLite database backup using pluggable driver system
  * - Zip creation/extraction using adm-zip
  * - Manifest generation with checksums
  * - Integrity validation
- *
- * Note: This module intentionally uses better-sqlite3 directly for backup-specific
- * functionality (like the .backup() API). It provides adapters to make the returned
- * databases compatible with the pluggable driver interface.
  */
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readFileSync, writeFileSync, rmdirSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, basename, dirname, sep } from 'node:path';
-import BetterSqlite3 from 'better-sqlite3';
 import AdmZip from 'adm-zip';
 import type { Database as DatabaseInterface, Statement } from './database/types.js';
 import { registry } from './database/registry.js';
+import { backupDatabase } from './database/index.js';
 import type {
   BackupManifest,
   BackupFileEntry,
@@ -33,7 +29,7 @@ import type {
 } from './types.js';
 
 // Package version for manifest
-const CURSOR_HISTORY_VERSION = '0.9.0';
+const CURSOR_HISTORY_VERSION = '0.9.1';
 const MANIFEST_VERSION = '1.0.0';
 
 // ============================================================================
@@ -175,10 +171,11 @@ export function createManifest(
 
 /**
  * Count sessions in a database file
+ * Uses the pluggable driver system (requires driver to be pre-selected)
  */
 function countSessions(dbPath: string): number {
   try {
-    const db = new BetterSqlite3(dbPath, { readonly: true });
+    const db = registry.openSync(dbPath, { readonly: true });
     try {
       // Try to read composer data
       const row = db.prepare("SELECT value FROM ItemTable WHERE key = 'composer.composerData'").get() as
@@ -205,19 +202,6 @@ function countSessions(dbPath: string): number {
 // ============================================================================
 // Backup Operations (T011-T016)
 // ============================================================================
-
-/**
- * T011: Backup a single database file using SQLite backup API
- * This ensures a consistent snapshot even if Cursor is running
- */
-export async function backupDatabase(sourcePath: string, destPath: string): Promise<void> {
-  const sourceDb = new BetterSqlite3(sourcePath, { readonly: true });
-  try {
-    await sourceDb.backup(destPath);
-  } finally {
-    sourceDb.close();
-  }
-}
 
 /**
  * T013: Check if there's enough disk space for the backup
