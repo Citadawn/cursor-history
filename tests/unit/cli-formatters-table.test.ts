@@ -14,6 +14,9 @@ import type { ChatSessionSummary, Workspace, ChatSession, SearchResult, MessageT
 const now = new Date('2024-01-15T10:00:00Z');
 const later = new Date('2024-01-15T11:00:00Z');
 
+// Strip ANSI escape codes for reliable string matching in tests
+const stripAnsi = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '');
+
 function makeSummary(overrides: Partial<ChatSessionSummary> = {}): ChatSessionSummary {
   return {
     id: 'sess-1', index: 1, title: 'Test', createdAt: now, lastUpdatedAt: later,
@@ -186,7 +189,8 @@ describe('formatSearchResultsTable', () => {
     const result = formatSearchResultsTable([sr], 'it');
     expect(result).toContain('#1');
     expect(result).toContain('3 match');
-    expect(result).toContain('[You] found it here');
+    // Strip ANSI codes because role prefix and match highlighting add escape sequences
+    expect(stripAnsi(result)).toContain('[You] found it here');
   });
 });
 
