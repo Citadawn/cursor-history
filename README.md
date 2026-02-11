@@ -1,5 +1,7 @@
 # Cursor History
 
+[English](./README.en.md) | 简体中文
+
 <p align="center">
   <img src="docs/logo.png" alt="cursor-history logo" width="200">
 </p>
@@ -10,77 +12,76 @@
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org/)
 
-**The ultimate open-source tool for browsing, searching, exporting, and backing up your Cursor AI chat history.**
+**浏览、搜索、导出和备份 Cursor AI 聊天历史的终极开源工具。**
 
-A POSIX-style CLI tool that does one thing well: access your Cursor AI chat history. Built on Unix philosophy—simple, composable, and focused.
+一个遵循 POSIX 风格的 CLI 工具，专注做好一件事：访问你的 Cursor AI 聊天历史。基于 Unix 哲学构建——简单、可组合、专注。
 
 ```bash
-# Pipe-friendly: combine with other tools
+# 管道友好：与其他工具组合使用
 cursor-history list --json | jq '.[] | select(.messageCount > 10)'
 cursor-history export 1 | grep -i "api" | head -20
 cursor-history search "bug" --json | jq -r '.[].sessionId' | xargs -I {} cursor-history export {}
 ```
 
-Never lose a conversation again. Whether you need to find that perfect code snippet from last week, migrate your history to a new machine, or create reliable backups of all your AI-assisted development sessions—cursor-history has you covered. Free, open-source, and built by the community for the community.
+再也不会丢失任何对话。无论你需要找到上周的完美代码片段、将历史记录迁移到新机器，还是为所有 AI 辅助开发会话创建可靠的备份——cursor-history 都能满足你的需求。免费、开源，由社区为社区构建。
 
-## Example Output
+## 示例输出
 
-### List Sessions
+### 列出会话
 
 <pre>
 <span style="color: #888">cursor-history list</span>
 
-<span style="color: #5fd7ff">cursor-history</span> - Chat History Browser
+<span style="color: #5fd7ff">cursor-history</span> - 聊天历史浏览器
 
-<span style="color: #5fd7ff">Sessions (showing 3 of 42):</span>
+<span style="color: #5fd7ff">会话（显示 42 个中的 3 个）：</span>
 
   <span style="color: #af87ff">#1</span>  <span style="color: #87d787">12/26 09:15 AM</span>  <span style="color: #d7d787">cursor_chat_history</span>
-      <span style="color: #888">15 messages · Updated 2 min ago</span>
-      <span style="color: #fff">"Help me fix the migration path issue..."</span>
+      <span style="color: #888">15 条消息 · 2 分钟前更新</span>
+      <span style="color: #fff">"帮我修复迁移路径问题..."</span>
 
   <span style="color: #af87ff">#2</span>  <span style="color: #87d787">12/25 03:22 PM</span>  <span style="color: #d7d787">my-react-app</span>
-      <span style="color: #888">8 messages · Updated 18 hours ago</span>
-      <span style="color: #fff">"Add authentication to the app..."</span>
+      <span style="color: #888">8 条消息 · 18 小时前更新</span>
+      <span style="color: #fff">"为应用添加身份验证..."</span>
 
   <span style="color: #af87ff">#3</span>  <span style="color: #87d787">12/24 11:30 AM</span>  <span style="color: #d7d787">api-server</span>
-      <span style="color: #888">23 messages · Updated 2 days ago</span>
-      <span style="color: #fff">"Create REST endpoints for users..."</span>
+      <span style="color: #888">23 条消息 · 2 天前更新</span>
+      <span style="color: #fff">"为用户创建 REST 端点..."</span>
 </pre>
 
-### Show Session Details
+### 显示会话详情
 
 <pre>
 <span style="color: #888">cursor-history show 1</span>
 
-<span style="color: #5fd7ff">Session #1</span> · <span style="color: #d7d787">cursor_chat_history</span>
-<span style="color: #888">15 messages · Created 12/26 09:15 AM</span>
+<span style="color: #5fd7ff">会话 #1</span> · <span style="color: #d7d787">cursor_chat_history</span>
+<span style="color: #888">15 条消息 · 创建于 12/26 09:15 AM</span>
 
 ────────────────────────────────────────
 
-<span style="color: #87d787">You:</span> <span style="color: #888">09:15:23 AM</span>
+<span style="color: #87d787">你：</span> <span style="color: #888">09:15:23 AM</span>
 
-Help me fix the migration path issue in the codebase
-
-────────────────────────────────────────
-
-<span style="color: #af87ff">Assistant:</span> <span style="color: #888">09:15:45 AM</span>
-
-I'll help you fix the migration path issue. Let me first examine
-the relevant files.
+帮我修复代码库中的迁移路径问题
 
 ────────────────────────────────────────
 
-<span style="color: #d7af5f">Tool:</span> <span style="color: #888">09:15:46 AM</span>
-<span style="color: #d7af5f">🔧 Read File</span>
-   <span style="color: #888">File:</span> <span style="color: #5fd7ff">src/core/migrate.ts</span>
-   <span style="color: #888">Content:</span> <span style="color: #fff">export function migrateSession(sessionId: string...</span>
-   <span style="color: #87d787">Status: ✓ completed</span>
+<span style="color: #af87ff">助手：</span> <span style="color: #888">09:15:45 AM</span>
+
+我会帮你修复迁移路径问题。让我先检查相关文件。
 
 ────────────────────────────────────────
 
-<span style="color: #d7af5f">Tool:</span> <span style="color: #888">09:16:02 AM</span>
-<span style="color: #d7af5f">🔧 Edit File</span>
-   <span style="color: #888">File:</span> <span style="color: #5fd7ff">src/core/migrate.ts</span>
+<span style="color: #d7af5f">工具：</span> <span style="color: #888">09:15:46 AM</span>
+<span style="color: #d7af5f">🔧 读取文件</span>
+   <span style="color: #888">文件：</span> <span style="color: #5fd7ff">src/core/migrate.ts</span>
+   <span style="color: #888">内容：</span> <span style="color: #fff">export function migrateSession(sessionId: string...</span>
+   <span style="color: #87d787">状态：✓ 已完成</span>
+
+────────────────────────────────────────
+
+<span style="color: #d7af5f">工具：</span> <span style="color: #888">09:16:02 AM</span>
+<span style="color: #d7af5f">🔧 编辑文件</span>
+   <span style="color: #888">文件：</span> <span style="color: #5fd7ff">src/core/migrate.ts</span>
 
    <span style="color: #87d787">```diff</span>
 <span style="color: #87d787">   + function transformPath(path: string): string {</span>
@@ -88,333 +89,333 @@ the relevant files.
 <span style="color: #87d787">   + }</span>
    <span style="color: #87d787">```</span>
 
-   <span style="color: #87d787">Status: ✓ completed</span>
+   <span style="color: #87d787">状态：✓ 已完成</span>
 
 ────────────────────────────────────────
 
-<span style="color: #5f87d7">Thinking:</span> <span style="color: #888">09:16:02 AM</span>
-<span style="color: #5f87d7">💭</span> <span style="color: #888">Now I need to update the function to call transformPath
-   for each file reference in the bubble data...</span>
+<span style="color: #5f87d7">思考：</span> <span style="color: #888">09:16:02 AM</span>
+<span style="color: #5f87d7">💭</span> <span style="color: #888">现在我需要更新函数，为气泡数据中的每个文件引用调用 transformPath...</span>
 
 ────────────────────────────────────────
 
-<span style="color: #af87ff">Assistant:</span> <span style="color: #888">09:16:30 AM</span>
+<span style="color: #af87ff">助手：</span> <span style="color: #888">09:16:30 AM</span>
 
-I've added the path transformation logic. The migration will now
-update all file paths when moving sessions between workspaces.
+我已添加路径转换逻辑。迁移现在会在工作区之间移动会话时更新所有文件路径。
 
 ────────────────────────────────────────
 
-<span style="color: #ff5f5f">Error:</span> <span style="color: #888">09:17:01 AM</span>
-<span style="color: #ff5f5f">❌</span> <span style="color: #ff5f5f">Build failed: Cannot find module './utils'</span>
+<span style="color: #ff5f5f">错误：</span> <span style="color: #888">09:17:01 AM</span>
+<span style="color: #ff5f5f">❌</span> <span style="color: #ff5f5f">构建失败：找不到模块 './utils'</span>
 
 ────────────────────────────────────────
 </pre>
 
-## Features
+## 功能特性
 
-- **Dual interface** - Use as CLI tool or import as a library in your Node.js projects
-- **List sessions** - View all chat sessions across workspaces
-- **View full conversations** - See complete chat history with:
-  - AI responses with natural language explanations
-  - **Full diff display** for file edits and writes with syntax highlighting
-  - **Detailed tool calls** showing all parameters (file paths, search patterns, commands, etc.)
-  - AI reasoning and thinking blocks
-  - Message timestamps
-- **Search** - Find conversations by keyword with highlighted matches
-- **Export** - Save sessions as Markdown or JSON files
-- **Migrate** - Move or copy sessions between workspaces (e.g., when renaming projects)
-- **Backup & Restore** - Create full backups of all chat history and restore when needed
-- **Cross-platform** - Works on macOS, Windows, and Linux
+- **双重接口** - 可作为 CLI 工具使用，也可在 Node.js 项目中作为库导入
+- **列出会话** - 查看所有工作区的聊天会话
+- **查看完整对话** - 查看完整的聊天历史，包括：
+  - AI 响应及自然语言解释
+  - **完整差异显示**，用于文件编辑和写入，带语法高亮
+  - **详细的工具调用**，显示所有参数（文件路径、搜索模式、命令等）
+  - AI 推理和思考块
+  - 消息时间戳
+- **搜索** - 通过关键词查找对话，并高亮匹配项
+- **导出** - 将会话保存为 Markdown 或 JSON 文件
+- **迁移** - 在工作区之间移动或复制会话（例如，重命名项目时）
+- **备份与恢复** - 创建所有聊天历史的完整备份，并在需要时恢复
+- **跨平台** - 支持 macOS、Windows 和 Linux
 
-## Installation
+## 安装
 
-### From NPM (Recommended)
+### 从 NPM 安装（推荐）
 
 ```bash
-# Install globally
+# 全局安装
 npm install -g cursor-history
 
-# Use the CLI
+# 使用 CLI
 cursor-history list
 ```
 
-### From Source
+### 从源码安装
 
 ```bash
-# Clone and build
+# 克隆并构建
 git clone https://github.com/S2thend/cursor_chat_history.git
 cd cursor_chat_history
 npm install
 npm run build
 
-# Run directly
+# 直接运行
 node dist/cli/index.js list
 
-# Or link globally
+# 或全局链接
 npm link
 cursor-history list
 ```
 
-## Requirements
+## 系统要求
 
-- Node.js 20+ (Node.js 22.5+ recommended for built-in SQLite support)
-- Cursor IDE (with existing chat history)
+- Node.js 20+（推荐 Node.js 22.5+ 以获得内置 SQLite 支持）
+- Cursor IDE（需要有现有的聊天历史）
 
-## SQLite Driver Configuration
 
-cursor-history supports two SQLite drivers for maximum compatibility:
+## SQLite 驱动配置
 
-| Driver | Description | Node.js Version |
-|--------|-------------|-----------------|
-| `node:sqlite` | Built-in Node.js SQLite module (no native bindings) | 22.5+ |
-| `better-sqlite3` | Native bindings via better-sqlite3 | 20+ |
+cursor-history 支持两种 SQLite 驱动以实现最大兼容性：
 
-### Automatic Driver Selection
+| 驱动 | 描述 | Node.js 版本 |
+|------|------|--------------|
+| `node:sqlite` | Node.js 内置 SQLite 模块（无需原生绑定） | 22.5+ |
+| `better-sqlite3` | 通过 better-sqlite3 的原生绑定 | 20+ |
 
-By default, cursor-history automatically selects the best available driver:
+### 自动驱动选择
 
-1. **node:sqlite** (preferred) - Works on Node.js 22.5+ without native compilation
-2. **better-sqlite3** (fallback) - Works on older Node.js versions
+默认情况下，cursor-history 会自动选择最佳可用驱动：
 
-### Manual Driver Selection
+1. **node:sqlite**（首选）- 在 Node.js 22.5+ 上无需原生编译即可工作
+2. **better-sqlite3**（备用）- 在较旧的 Node.js 版本上工作
 
-You can force a specific driver using the environment variable:
+### 手动驱动选择
+
+你可以使用环境变量强制使用特定驱动：
 
 ```bash
-# Force better-sqlite3
+# 强制使用 better-sqlite3
 CURSOR_HISTORY_SQLITE_DRIVER=better-sqlite3 cursor-history list
 
-# Force node:sqlite (requires Node.js 22.5+)
+# 强制使用 node:sqlite（需要 Node.js 22.5+）
 CURSOR_HISTORY_SQLITE_DRIVER=node:sqlite cursor-history list
 ```
 
-### Debug Driver Selection
+### 调试驱动选择
 
-To see which driver is being used:
+查看正在使用的驱动：
 
 ```bash
 DEBUG=cursor-history:* cursor-history list
 ```
 
-### Library API Driver Control
+### 库 API 驱动控制
 
-When using cursor-history as a library, you can control the driver programmatically:
+在将 cursor-history 作为库使用时，你可以通过编程方式控制驱动：
 
 ```typescript
 import { setDriver, getActiveDriver, listSessions } from 'cursor-history';
 
-// Force a specific driver before any operations
+// 在任何操作之前强制使用特定驱动
 setDriver('better-sqlite3');
 
-// Check which driver is active
+// 检查当前活动的驱动
 const driver = getActiveDriver();
-console.log(`Using driver: ${driver}`);
+console.log(`使用驱动：${driver}`);
 
-// Or configure via LibraryConfig
+// 或通过 LibraryConfig 配置
 const result = await listSessions({
-  sqliteDriver: 'node:sqlite'  // Force node:sqlite for this call
+  sqliteDriver: 'node:sqlite'  // 为此调用强制使用 node:sqlite
 });
 ```
 
-## Usage
+## 使用方法
 
-### List Sessions
+### 列出会话
 
 ```bash
-# List recent sessions (default: 20)
+# 列出最近的会话（默认：20 个）
 cursor-history list
 
-# List all sessions
+# 列出所有会话
 cursor-history list --all
 
-# List with composer IDs (for external tools)
+# 列出时显示 composer ID（用于外部工具）
 cursor-history list --ids
 
-# Limit results
+# 限制结果数量
 cursor-history list -n 10
 
-# List workspaces only
+# 仅列出工作区
 cursor-history list --workspaces
 ```
 
-### View a Session
+### 查看会话
 
 ```bash
-# Show session by index number
+# 通过索引号显示会话
 cursor-history show 1
 
-# Show with truncated messages (for quick overview)
+# 显示截断的消息（用于快速概览）
 cursor-history show 1 --short
 
-# Show full AI thinking/reasoning text
+# 显示完整的 AI 思考/推理文本
 cursor-history show 1 --think
 
-# Show full file read content (not truncated)
+# 显示完整的文件读取内容（不截断）
 cursor-history show 1 --fullread
 
-# Show full error messages (not truncated to 300 chars)
+# 显示完整的错误消息（不截断为 300 字符）
 cursor-history show 1 --error
 
-# Filter by message type (user, assistant, tool, thinking, error)
+# 按消息类型过滤（user、assistant、tool、thinking、error）
 cursor-history show 1 --only user
 cursor-history show 1 --only user,assistant
 cursor-history show 1 --only tool,error
 
-# Combine options
+# 组合选项
 cursor-history show 1 --short --think --fullread --error
 cursor-history show 1 --only user,assistant --short
 
-# Output as JSON
+# 输出为 JSON
 cursor-history show 1 --json
 ```
 
-### Search
+### 搜索
 
 ```bash
-# Search for keyword
+# 搜索关键词
 cursor-history search "react hooks"
 
-# Limit results
+# 限制结果数量
 cursor-history search "api" -n 5
 
-# Adjust context around matches
+# 调整匹配项周围的上下文
 cursor-history search "error" --context 100
 ```
 
-### Export
+### 导出
 
 ```bash
-# Export single session to Markdown
+# 将单个会话导出为 Markdown
 cursor-history export 1
 
-# Export to specific file
+# 导出到指定文件
 cursor-history export 1 -o ./my-chat.md
 
-# Export as JSON
+# 导出为 JSON
 cursor-history export 1 --format json
 
-# Export all sessions to directory
+# 将所有会话导出到目录
 cursor-history export --all -o ./exports/
 
-# Overwrite existing files
+# 覆盖现有文件
 cursor-history export 1 --force
 ```
 
-### Migrate Sessions
+### 迁移会话
 
 ```bash
-# Move a single session to another workspace
+# 将单个会话移动到另一个工作区
 cursor-history migrate-session 1 /path/to/new/project
 
-# Move multiple sessions (comma-separated indices or IDs)
+# 移动多个会话（逗号分隔的索引或 ID）
 cursor-history migrate-session 1,3,5 /path/to/project
 
-# Copy instead of move (keeps original)
+# 复制而不是移动（保留原始）
 cursor-history migrate-session --copy 1 /path/to/project
 
-# Preview what would happen without making changes
+# 预览将发生的操作而不进行更改
 cursor-history migrate-session --dry-run 1 /path/to/project
 
-# Move all sessions from one workspace to another
+# 将所有会话从一个工作区移动到另一个
 cursor-history migrate /old/project /new/project
 
-# Copy all sessions (backup)
+# 复制所有会话（备份）
 cursor-history migrate --copy /project /backup/project
 
-# Force merge with existing sessions at destination
+# 强制与目标位置的现有会话合并
 cursor-history migrate --force /old/project /existing/project
 ```
 
-### Backup & Restore
+### 备份与恢复
 
 ```bash
-# Create a backup of all chat history
+# 创建所有聊天历史的备份
 cursor-history backup
 
-# Create backup to specific file
+# 创建备份到指定文件
 cursor-history backup -o ~/my-backup.zip
 
-# Overwrite existing backup
+# 覆盖现有备份
 cursor-history backup --force
 
-# List available backups
+# 列出可用的备份
 cursor-history list-backups
 
-# List backups in a specific directory
+# 列出特定目录中的备份
 cursor-history list-backups -d /path/to/backups
 
-# Restore from a backup
+# 从备份恢复
 cursor-history restore ~/cursor-history-backups/backup.zip
 
-# Restore to a custom location
+# 恢复到自定义位置
 cursor-history restore backup.zip --target /custom/cursor/data
 
-# Force overwrite existing data
+# 强制覆盖现有数据
 cursor-history restore backup.zip --force
 
-# View sessions from a backup without restoring
+# 查看备份中的会话而不恢复
 cursor-history list --backup ~/backup.zip
 cursor-history show 1 --backup ~/backup.zip
 cursor-history search "query" --backup ~/backup.zip
 cursor-history export 1 --backup ~/backup.zip
 ```
 
-### Global Options
+### 全局选项
 
 ```bash
-# Output as JSON (works with all commands)
+# 输出为 JSON（适用于所有命令）
 cursor-history --json list
 
-# Use custom Cursor data path
+# 使用自定义 Cursor 数据路径
 cursor-history --data-path ~/.cursor-alt list
 
-# Filter by workspace
+# 按工作区过滤
 cursor-history --workspace /path/to/project list
 ```
 
-## What You Can View
+## 你可以查看的内容
 
-When browsing your chat history, you'll see:
+浏览聊天历史时，你将看到：
 
-- **Complete conversations** - All messages exchanged with Cursor AI
-- **Duplicate message folding** - Consecutive identical messages are folded into one display with multiple timestamps and repeat count (e.g., "02:48:01 PM, 02:48:04 PM, 02:48:54 PM (×3)")
-- **Timestamps** - Exact time each message was sent (HH:MM:SS format)
-- **AI tool actions** - Detailed view of what Cursor AI did:
-  - **File edits/writes** - Full diff display with syntax highlighting showing exactly what changed
-  - **File reads** - File paths and content previews (use `--fullread` for complete content)
-  - **Search operations** - Patterns, paths, and search queries used
-  - **Terminal commands** - Complete command text
-  - **Directory listings** - Paths explored
-  - **Tool errors** - Failed/cancelled operations shown with ❌ status indicator and parameters
-  - **User decisions** - Shows if you accepted (✓), rejected (✗), or pending (⏳) on tool operations
-  - **Errors** - Error messages with ❌ emoji highlighting (extracted from `toolFormerData.additionalData.status`)
-- **AI reasoning** - See the AI's thinking process behind decisions (use `--think` for full text)
-- **Code artifacts** - Mermaid diagrams, code blocks, with syntax highlighting
-- **Natural language explanations** - AI explanations combined with code for full context
+- **完整对话** - 与 Cursor AI 交换的所有消息
+- **重复消息折叠** - 连续的相同消息会折叠为一个显示，带有多个时间戳和重复计数（例如，"02:48:01 PM, 02:48:04 PM, 02:48:54 PM (×3)"）
+- **时间戳** - 每条消息发送的确切时间（HH:MM:SS 格式）
+- **AI 工具操作** - Cursor AI 执行操作的详细视图：
+  - **文件编辑/写入** - 完整的差异显示，带语法高亮，准确显示更改内容
+  - **文件读取** - 文件路径和内容预览（使用 `--fullread` 查看完整内容）
+  - **搜索操作** - 使用的模式、路径和搜索查询
+  - **终端命令** - 完整的命令文本
+  - **目录列表** - 探索的路径
+  - **工具错误** - 失败/取消的操作显示 ❌ 状态指示器和参数
+  - **用户决策** - 显示你是否接受（✓）、拒绝（✗）或待定（⏳）工具操作
+  - **错误** - 带有 ❌ 表情符号高亮的错误消息（从 `toolFormerData.additionalData.status` 提取）
+- **AI 推理** - 查看 AI 决策背后的思考过程（使用 `--think` 查看完整文本）
+- **代码工件** - Mermaid 图表、代码块，带语法高亮
+- **自然语言解释** - AI 解释与代码结合，提供完整上下文
 
-### Display Options
+### 显示选项
 
-- **Default view** - Full messages with truncated thinking (200 chars), file reads (100 chars), and errors (300 chars)
-- **`--short` mode** - Truncates user and assistant messages to 300 chars for quick scanning
-- **`--think` flag** - Shows complete AI reasoning/thinking text (not truncated)
-- **`--fullread` flag** - Shows full file read content instead of previews
-- **`--error` flag** - Shows full error messages instead of 300-char preview
-- **`--only <types>` flag** - Filter messages by type: `user`, `assistant`, `tool`, `thinking`, `error` (comma-separated)
+- **默认视图** - 完整消息，截断思考（200 字符）、文件读取（100 字符）和错误（300 字符）
+- **`--short` 模式** - 将用户和助手消息截断为 300 字符，用于快速浏览
+- **`--think` 标志** - 显示完整的 AI 推理/思考文本（不截断）
+- **`--fullread` 标志** - 显示完整的文件读取内容而不是预览
+- **`--error` 标志** - 显示完整的错误消息而不是 300 字符预览
+- **`--only <types>` 标志** - 按类型过滤消息：`user`、`assistant`、`tool`、`thinking`、`error`（逗号分隔）
 
-## Where Cursor Stores Data
+## Cursor 数据存储位置
 
-| Platform | Path |
-|----------|------|
+| 平台 | 路径 |
+|------|------|
 | macOS | `~/Library/Application Support/Cursor/User/` |
 | Windows | `%APPDATA%/Cursor/User/` |
 | Linux | `~/.config/Cursor/User/` |
 
-The tool automatically finds and reads your Cursor chat history from these locations.
+该工具会自动从这些位置查找并读取你的 Cursor 聊天历史。
 
-## Library API
 
-In addition to the CLI, you can use cursor-history as a library in your Node.js projects:
+## 库 API
+
+除了 CLI 之外，你还可以在 Node.js 项目中将 cursor-history 作为库使用：
 
 ```typescript
 import {
@@ -424,55 +425,55 @@ import {
   exportSessionToMarkdown
 } from 'cursor-history';
 
-// List all sessions with pagination
+// 列出所有会话并分页
 const result = listSessions({ limit: 10 });
-console.log(`Found ${result.pagination.total} sessions`);
+console.log(`找到 ${result.pagination.total} 个会话`);
 
 for (const session of result.data) {
-  console.log(`${session.id}: ${session.messageCount} messages`);
+  console.log(`${session.id}: ${session.messageCount} 条消息`);
 }
 
-// Get a specific session (zero-based index)
+// 获取特定会话（从零开始的索引）
 const session = getSession(0);
 console.log(session.messages);
 
-// Search across all sessions
+// 在所有会话中搜索
 const results = searchSessions('authentication', { context: 2 });
 for (const match of results) {
   console.log(match.match);
 }
 
-// Export to Markdown
+// 导出为 Markdown
 const markdown = exportSessionToMarkdown(0);
 ```
 
-### Migration API
+### 迁移 API
 
 ```typescript
 import { migrateSession, migrateWorkspace } from 'cursor-history';
 
-// Move a session to another workspace
+// 将会话移动到另一个工作区
 const results = migrateSession({
-  sessions: 3,  // index or ID
+  sessions: 3,  // 索引或 ID
   destination: '/path/to/new/project'
 });
 
-// Copy multiple sessions (keeps originals)
+// 复制多个会话（保留原始）
 const results = migrateSession({
   sessions: [1, 3, 5],
   destination: '/path/to/project',
   mode: 'copy'
 });
 
-// Migrate all sessions between workspaces
+// 在工作区之间迁移所有会话
 const result = migrateWorkspace({
   source: '/old/project',
   destination: '/new/project'
 });
-console.log(`Migrated ${result.successCount} sessions`);
+console.log(`已迁移 ${result.successCount} 个会话`);
 ```
 
-### Backup API
+### 备份 API
 
 ```typescript
 import {
@@ -483,7 +484,7 @@ import {
   getDefaultBackupDir
 } from 'cursor-history';
 
-// Create a backup
+// 创建备份
 const result = await createBackup({
   outputPath: '~/my-backup.zip',
   force: true,
@@ -491,72 +492,72 @@ const result = await createBackup({
     console.log(`${progress.phase}: ${progress.filesCompleted}/${progress.totalFiles}`);
   }
 });
-console.log(`Backup created: ${result.backupPath}`);
-console.log(`Sessions: ${result.manifest.stats.sessionCount}`);
+console.log(`备份已创建：${result.backupPath}`);
+console.log(`会话数：${result.manifest.stats.sessionCount}`);
 
-// Validate a backup
+// 验证备份
 const validation = validateBackup('~/backup.zip');
 if (validation.status === 'valid') {
-  console.log('Backup is valid');
+  console.log('备份有效');
 } else if (validation.status === 'warnings') {
-  console.log('Backup has warnings:', validation.corruptedFiles);
+  console.log('备份有警告：', validation.corruptedFiles);
 }
 
-// Restore from backup
+// 从备份恢复
 const restoreResult = restoreBackup({
   backupPath: '~/backup.zip',
   force: true
 });
-console.log(`Restored ${restoreResult.filesRestored} files`);
+console.log(`已恢复 ${restoreResult.filesRestored} 个文件`);
 
-// List available backups
-const backups = listBackups();  // Scans ~/cursor-history-backups/
+// 列出可用的备份
+const backups = listBackups();  // 扫描 ~/cursor-history-backups/
 for (const backup of backups) {
-  console.log(`${backup.filename}: ${backup.manifest?.stats.sessionCount} sessions`);
+  console.log(`${backup.filename}: ${backup.manifest?.stats.sessionCount} 个会话`);
 }
 
-// Read sessions from backup without restoring
+// 从备份读取会话而不恢复
 const sessions = listSessions({ backupPath: '~/backup.zip' });
 ```
 
-### Available Functions
+### 可用函数
 
-| Function | Description |
-|----------|-------------|
-| `listSessions(config?)` | List sessions with pagination |
-| `getSession(index, config?)` | Get full session by index |
-| `searchSessions(query, config?)` | Search across sessions |
-| `exportSessionToJson(index, config?)` | Export session to JSON |
-| `exportSessionToMarkdown(index, config?)` | Export session to Markdown |
-| `exportAllSessionsToJson(config?)` | Export all sessions to JSON |
-| `exportAllSessionsToMarkdown(config?)` | Export all sessions to Markdown |
-| `migrateSession(config)` | Move/copy sessions to another workspace |
-| `migrateWorkspace(config)` | Move/copy all sessions between workspaces |
-| `createBackup(config?)` | Create full backup of all chat history |
-| `restoreBackup(config)` | Restore chat history from backup |
-| `validateBackup(path)` | Validate backup integrity |
-| `listBackups(directory?)` | List available backup files |
-| `getDefaultBackupDir()` | Get default backup directory path |
-| `getDefaultDataPath()` | Get platform-specific Cursor data path |
-| `setDriver(name)` | Set SQLite driver ('better-sqlite3' or 'node:sqlite') |
-| `getActiveDriver()` | Get currently active SQLite driver name |
+| 函数 | 描述 |
+|------|------|
+| `listSessions(config?)` | 列出会话并分页 |
+| `getSession(index, config?)` | 通过索引获取完整会话 |
+| `searchSessions(query, config?)` | 在会话中搜索 |
+| `exportSessionToJson(index, config?)` | 将会话导出为 JSON |
+| `exportSessionToMarkdown(index, config?)` | 将会话导出为 Markdown |
+| `exportAllSessionsToJson(config?)` | 将所有会话导出为 JSON |
+| `exportAllSessionsToMarkdown(config?)` | 将所有会话导出为 Markdown |
+| `migrateSession(config)` | 将会话移动/复制到另一个工作区 |
+| `migrateWorkspace(config)` | 在工作区之间移动/复制所有会话 |
+| `createBackup(config?)` | 创建所有聊天历史的完整备份 |
+| `restoreBackup(config)` | 从备份恢复聊天历史 |
+| `validateBackup(path)` | 验证备份完整性 |
+| `listBackups(directory?)` | 列出可用的备份文件 |
+| `getDefaultBackupDir()` | 获取默认备份目录路径 |
+| `getDefaultDataPath()` | 获取特定平台的 Cursor 数据路径 |
+| `setDriver(name)` | 设置 SQLite 驱动（'better-sqlite3' 或 'node:sqlite'） |
+| `getActiveDriver()` | 获取当前活动的 SQLite 驱动名称 |
 
-### Configuration Options
+### 配置选项
 
 ```typescript
 interface LibraryConfig {
-  dataPath?: string;       // Custom Cursor data path
-  workspace?: string;      // Filter by workspace path
-  limit?: number;          // Pagination limit
-  offset?: number;         // Pagination offset
-  context?: number;        // Search context lines
-  backupPath?: string;     // Read from backup file instead of live data
-  sqliteDriver?: 'better-sqlite3' | 'node:sqlite';  // Force specific SQLite driver
-  messageFilter?: MessageType[];  // Filter messages by type (user, assistant, tool, thinking, error)
+  dataPath?: string;       // 自定义 Cursor 数据路径
+  workspace?: string;      // 按工作区路径过滤
+  limit?: number;          // 分页限制
+  offset?: number;         // 分页偏移
+  context?: number;        // 搜索上下文行数
+  backupPath?: string;     // 从备份文件读取而不是实时数据
+  sqliteDriver?: 'better-sqlite3' | 'node:sqlite';  // 强制使用特定 SQLite 驱动
+  messageFilter?: MessageType[];  // 按类型过滤消息（user、assistant、tool、thinking、error）
 }
 ```
 
-### Error Handling
+### 错误处理
 
 ```typescript
 import {
@@ -577,102 +578,102 @@ try {
   const result = listSessions();
 } catch (err) {
   if (isDatabaseLockedError(err)) {
-    console.error('Database locked - close Cursor and retry');
+    console.error('数据库已锁定 - 关闭 Cursor 并重试');
   } else if (isDatabaseNotFoundError(err)) {
-    console.error('Cursor data not found');
+    console.error('未找到 Cursor 数据');
   } else if (isSessionNotFoundError(err)) {
-    console.error('Session not found');
+    console.error('未找到会话');
   } else if (isWorkspaceNotFoundError(err)) {
-    console.error('Workspace not found - open project in Cursor first');
+    console.error('未找到工作区 - 请先在 Cursor 中打开项目');
   }
 }
 
-// Filter error handling
+// 过滤器错误处理
 try {
   const session = getSession(0, { messageFilter: ['invalid'] });
 } catch (err) {
   if (isInvalidFilterError(err)) {
-    console.error('Invalid filter types:', err.invalidTypes);
-    console.error('Valid types:', err.validTypes);
+    console.error('无效的过滤器类型：', err.invalidTypes);
+    console.error('有效类型：', err.validTypes);
   }
 }
 
-// Backup-specific errors
+// 备份特定错误
 try {
   const result = await createBackup();
 } catch (err) {
   if (isBackupError(err)) {
-    console.error('Backup failed:', err.message);
+    console.error('备份失败：', err.message);
   } else if (isInvalidBackupError(err)) {
-    console.error('Invalid backup file');
+    console.error('无效的备份文件');
   } else if (isRestoreError(err)) {
-    console.error('Restore failed:', err.message);
+    console.error('恢复失败：', err.message);
   }
 }
 ```
 
-## Development
+## 开发
 
-### Building from Source
+### 从源码构建
 
 ```bash
 npm install
 npm run build
 ```
 
-### Running Tests
+### 运行测试
 
 ```bash
-npm test              # Run all tests
-npm run test:watch    # Watch mode
+npm test              # 运行所有测试
+npm run test:watch    # 监视模式
 ```
 
-### Releasing to NPM
+### 发布到 NPM
 
-This project uses GitHub Actions for automatic NPM publishing. To release a new version:
+此项目使用 GitHub Actions 进行自动 NPM 发布。要发布新版本：
 
-1. Update version in `package.json`:
+1. 更新 `package.json` 中的版本：
    ```bash
-   npm version patch  # For bug fixes (0.1.0 -> 0.1.1)
-   npm version minor  # For new features (0.1.0 -> 0.2.0)
-   npm version major  # For breaking changes (0.1.0 -> 1.0.0)
+   npm version patch  # 用于错误修复（0.1.0 -> 0.1.1）
+   npm version minor  # 用于新功能（0.1.0 -> 0.2.0）
+   npm version major  # 用于破坏性更改（0.1.0 -> 1.0.0）
    ```
 
-2. Push the version tag to trigger automatic publishing:
+2. 推送版本标签以触发自动发布：
    ```bash
    git push origin main --tags
    ```
 
-3. The GitHub workflow will automatically:
-   - Run type checks, linting, and tests
-   - Build the project
-   - Publish to NPM with provenance
+3. GitHub 工作流将自动：
+   - 运行类型检查、代码检查和测试
+   - 构建项目
+   - 发布到 NPM 并提供来源证明
 
-**First-time setup**: Add your NPM access token as a GitHub secret named `NPM_TOKEN`:
-1. Create an NPM access token at https://www.npmjs.com/settings/YOUR_USERNAME/tokens
-2. Go to your GitHub repository settings → Secrets and variables → Actions
-3. Add a new repository secret named `NPM_TOKEN` with your NPM token
+**首次设置**：将你的 NPM 访问令牌添加为名为 `NPM_TOKEN` 的 GitHub 密钥：
+1. 在 https://www.npmjs.com/settings/YOUR_USERNAME/tokens 创建 NPM 访问令牌
+2. 转到你的 GitHub 仓库设置 → Secrets and variables → Actions
+3. 添加名为 `NPM_TOKEN` 的新仓库密钥，值为你的 NPM 令牌
 
-## Contributing
+## 贡献
 
-We welcome contributions from the community! Here's how you can help:
+我们欢迎社区的贡献！以下是你可以提供帮助的方式：
 
-### Reporting Issues
+### 报告问题
 
-- **Bug reports**: [Open an issue](https://github.com/S2thend/cursor_chat_history/issues/new) with steps to reproduce, expected vs actual behavior, and your environment (OS, Node.js version)
-- **Feature requests**: [Open an issue](https://github.com/S2thend/cursor_chat_history/issues/new) describing the feature and its use case
+- **错误报告**：[提交问题](https://github.com/S2thend/cursor_chat_history/issues/new)，包含重现步骤、预期与实际行为，以及你的环境（操作系统、Node.js 版本）
+- **功能请求**：[提交问题](https://github.com/S2thend/cursor_chat_history/issues/new)，描述功能及其用例
 
-### Submitting Pull Requests
+### 提交拉取请求
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Make your changes
-4. Run tests and linting (`npm test && npm run lint`)
-5. Commit your changes (`git commit -m 'Add my feature'`)
-6. Push to your fork (`git push origin feature/my-feature`)
-7. [Open a Pull Request](https://github.com/S2thend/cursor_chat_history/pulls)
+1. Fork 仓库
+2. 创建功能分支（`git checkout -b feature/my-feature`）
+3. 进行更改
+4. 运行测试和代码检查（`npm test && npm run lint`）
+5. 提交更改（`git commit -m 'Add my feature'`）
+6. 推送到你的 fork（`git push origin feature/my-feature`）
+7. [提交拉取请求](https://github.com/S2thend/cursor_chat_history/pulls)
 
-### Development Setup
+### 开发设置
 
 ```bash
 git clone https://github.com/S2thend/cursor_chat_history.git
@@ -682,6 +683,6 @@ npm run build
 npm test
 ```
 
-## License
+## 许可证
 
 MIT
